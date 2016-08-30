@@ -6,6 +6,7 @@
 package saulmm.avengers.views.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,21 +14,25 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
 import com.bumptech.glide.Glide;
 import java.util.List;
 import saulmm.avengers.R;
-import saulmm.avengers.model.entities.Character;
+import saulmm.avengers.entities.MarvelCharacter;
+import saulmm.avengers.utils.Utils;
 import saulmm.avengers.views.RecyclerClickListener;
 
 public class AvengersListAdapter extends RecyclerView.Adapter<AvengersListAdapter.CharacterViewHolder> {
     private final String NOT_AVAILABLE_URL = "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
     private final RecyclerClickListener mRecyclerListener;
-    private final List<Character> mCharacters;
+    private final List<MarvelCharacter> mCharacters;
 
     private Context mContext;
 
-    public AvengersListAdapter(List<Character> avengers, Context context, RecyclerClickListener recyclerClickListener) {
+    public AvengersListAdapter(List<MarvelCharacter> avengers, Context context,
+        RecyclerClickListener recyclerClickListener) {
+
         mCharacters = avengers;
         mContext = context;
         mRecyclerListener = recyclerClickListener;
@@ -55,6 +60,7 @@ public class AvengersListAdapter extends RecyclerView.Adapter<AvengersListAdapte
         @Bind(R.id.item_avenger_title)              TextView avengerTitleTextView;
         @Bind(R.id.item_avenger_thumb)              ImageView avengerThumbImageView;
         @Bind(R.id.item_avenger_placeholder_name)   TextView avengerPlaceholderTitleTextView;
+        @BindColor(R.color.brand_primary)           int mColorPrimary;
 
         public CharacterViewHolder(View itemView, final RecyclerClickListener recyclerClickListener) {
             super(itemView);
@@ -62,15 +68,14 @@ public class AvengersListAdapter extends RecyclerView.Adapter<AvengersListAdapte
             bindListener(itemView, recyclerClickListener);
         }
 
-        public void bindAvenger(Character character) {
+        public void bindAvenger(MarvelCharacter character) {
             avengerTitleTextView.setText(character.getName());
-            avengerThumbImageView.setImageResource(character.getImageResource());
+            avengerTitleTextView.setTransitionName(Utils.getListTransitionName(getPosition()));
 
             if (character.getImageUrl().equals(NOT_AVAILABLE_URL)) {
-                Glide.with(mContext)
-                    .load(R.drawable.error_placeholder)
-                    .crossFade()
-                    .into(avengerThumbImageView);
+                ColorDrawable colorDrawable = new ColorDrawable(mColorPrimary);
+                avengerThumbImageView.setDrawingCacheEnabled(true);
+                avengerThumbImageView.setImageDrawable(colorDrawable);
 
             } else {
                 Glide.with(mContext)
@@ -82,8 +87,7 @@ public class AvengersListAdapter extends RecyclerView.Adapter<AvengersListAdapte
 
         private void bindListener(View itemView, final RecyclerClickListener recyclerClickListener) {
             itemView.setOnClickListener(v ->
-                recyclerClickListener.onElementClick(getPosition(),
-				avengerThumbImageView));
+                recyclerClickListener.onElementClick(getPosition(), avengerTitleTextView, avengerThumbImageView));
         }
     }
 }
